@@ -6,5 +6,5 @@
  * Version: 1.0
  * Author: eEndorsements.com, LLC.
  * Author URI: http://eendorsements.com
- * License: MIT
+ * License: GPL2
  */
