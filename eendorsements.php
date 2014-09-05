@@ -66,19 +66,19 @@ function eendorsements_settings_page() {
     $data_field_name2 = 'eendorsements_api_secret';
 
     // Read in existing option value from database
-    $opt_val1 = get_option( $opt_name1 );
-    $opt_val2 = get_option( $opt_name2 );
+    $opt_val1 = get_option($opt_name1);
+    $opt_val2 = get_option($opt_name2);
 
     // See if the user has posted us some information
     // If they did, this hidden field will be set to 'Y'
-    if( $_POST[ $hidden_field_name ] == 'Y' ) {
+    if($_POST[$hidden_field_name] == 'Y') {
         // Read their posted values
-        $opt_val1 = $_POST[ $data_field_name1 ];
-        $opt_val2 = $_POST[ $data_field_name2 ];
+        $opt_val1 = $_POST[$data_field_name1];
+        $opt_val2 = $_POST[$data_field_name2];
 
         // Save the posted value in the database
-        update_option( $opt_name1, $opt_val1 );
-        update_option( $opt_name2, $opt_val2 );
+        update_option($opt_name1, $opt_val1);
+        update_option($opt_name2, $opt_val2);
 
         // Put a settings updated message on the screen
     ?>
@@ -93,7 +93,7 @@ function eendorsements_settings_page() {
 
         // header
 
-         echo "<h2>" . __( 'eEndorsements', 'menu-test' ) . "</h2>";
+         echo "<h2>" . __('eEndorsements', 'menu-test') . "</h2>";
 
         // settings form
         
@@ -123,10 +123,25 @@ function eendorsements_settings_page() {
 
 // collects the endorsements for this account via the eEndorsements API
 function eendorsements_handler($atts, $content = null) {
+
+    // attribute defaults
     $a = shortcode_atts(array(
-        'limit' => '5',
+        'limit' => '10',
         'page'  => '1',
     ), $atts);
     
-    return ('here is some content from eendorsements');
+    $settings = array(
+        'apiKey'       => get_option('eendorsements_api_key'),
+        'apiSecretKey' => get_option('eendorsements_api_key')
+    );
+
+    $ee = new eEndorsementsAPIExchange($settings);
+
+    $username = "abcstaffing";
+
+    $ee->setGetFields(array('page' => 1));
+
+    $result = $ee->makeRequest('http://eendorsements.dev/api/endorsements/view/'.$username);
+
+    return "eEndorsements Go Here";
 }
