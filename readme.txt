@@ -17,3 +17,5 @@ The eEndorsements plugin allows you to easily add your company's eEndorsements.c
 3. Click install.
 4. Click activate.
 5. Click settings to configure your API credentials.
+
+== Configuration ==
