@@ -24,6 +24,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// Include eE API library
+require_once "includes/eEndorsementsAPIExchange.php";
 
 // Hook for adding admin menus
 add_action('admin_menu', 'eendorsements_add_pages');
