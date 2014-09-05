@@ -2,109 +2,145 @@
 
 /**
  * eEndorsements API - PHP:  Wrapper for v1.0
- *
  */
-
 class eEndorsementsAPIExchange
 {
-	private $apiKey;
-	private $apiSecretKey;
-	private $postFields;
-	private $getFields;
-	private $url;
+    /**
+     * @var string
+     */
+    private $apiKey;
 
-	/*
-	 * Create the object and pass in the api keys.
-	 * Requires: apiKey and apiSecret parameters.
-	 */
-	public function __construct(array $settings)
-	{
-		if (!in_array('curl', get_loaded_extensions()))
-		{
-			throw new Exception('You will need to install cURL, see: http://curl.haxx.se/docs/install.html');
-		}
+    /**
+     * @var string
+     */
+    private $apiSecretKey;
 
-		if(!isset($settings['apiKey']) && !isset($settings['apiSecretKey']))
-		{
-			throw new Exception('Make sure you pass the api Key and api Secret');
-		}
+    /**
+     * @var array
+     */
+    private $postFields;
 
-		$this->apiKey = $settings['apiKey'];
-		$this->apiSecretKey = $settings['apiSecretKey'];
-	}
+    /**
+     * @var array
+     */
+    private $getFields;
 
-	public function setPostFields(array $postFields)
-	{
-		if(!is_null($this->getGetFields()))
-		{
-			throw new Exception('You can only send POST or GET fields');
-		}
+    /**
+     * @var string
+     */
+    private $url;
 
-		$this->postFields = $postFields;
-	}
+    /*
+     * Create the object and pass in the api keys.
+     * Requires: apiKey and apiSecret parameters.
+     *
+     * @param array $settings
+     */
+    public function __construct(array $settings)
+    {
+        if (!in_array('curl', get_loaded_extensions())) {
+            throw new Exception('You will need to install cURL, see: http://curl.haxx.se/docs/install.html');
+        }
 
-	public function setGetFields(array $getFields)
-	{
-		if(!is_null($this->getGetFields()))
-		{
-			throw new Exception('You can only send POST or GET fields');
-		}
+        if (!isset($settings['apiKey']) && !isset($settings['apiSecretKey'])) {
+            throw new InvalidArgumentException('Make sure you pass the API Key and API Secret Key');
+        }
 
-		$search = array('#', ',', '+', ':');
-		$replace = array('%23', '%2C', '%2B', '%3A');
-		$string = str_replace($search, $replace, $string);
+        $this->apiKey = $settings['apiKey'];
+        $this->apiSecretKey = $settings['apiSecretKey'];
+    }
 
-		$this->getFields = $string;
-	}
+    /**
+     * @param array $postFields
+     * @throws Exception
+     */
+    public function setPostFields(array $postFields)
+    {
+        if (!is_null($this->getGetFields())) {
+            throw new Exception('You can only send POST or GET fields');
+        }
 
-	public function getGetFields()
-	{
-		return $this->getFields;
-	}
+        $this->postFields = $postFields;
+    }
 
-	public function getPostFields()
-	{
-		return $this->postFields;
-	}
+    /**
+     * @param array $getFields
+     * @throws LogicException
+     */
+    public function setGetFields(array $getFields)
+    {
+        if (!is_null($this->getGetFields())) {
+            throw new LogicException('You can only send POST or GET fields');
+        }
 
-	protected function getAuthorizationString()
-	{
-		$string = sprintf("?apiKey=%s&apiSecretKey=%s", $this->apiKey, $this->apiSecretKey);
+        $search = array('#', ',', '+', ':');
+        $replace = array('%23', '%2C', '%2B', '%3A');
 
-		return $string;
-	}
+        foreach ($getFields as &$field) {
+            $field = str_replace($search, $replace, $field);
+        }
 
-	public function makeRequest($url)
-	{
-		$getFields = $this->getGetFields();
-		$postFields = $this->getPostFields();
+        $this->getFields = $getFields;
+    }
 
-		$this->url = $url . $this->getAuthorizationString();
+    /**
+     * @return array
+     */
+    public function getGetFields()
+    {
+        return $this->getFields;
+    }
 
-		$options = array(
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_HEADER => false,
-			CURLOPT_URL => $this->url,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT => 10
-		);
+    /**
+     * @return array
+     */
+    public function getPostFields()
+    {
+        return $this->postFields;
+    }
 
-		if(!is_null($postFields))
-		{
-			$postFields = http_build_query($postFields);
-			$options[CURLOPT_POSTFIELDS] = $postFields;
-		}
-		elseif($getFields !== '')
-		{
-			$options[CURLOPT_URL] .= $getFields;
-		}
+    /**
+     * @return string
+     */
+    protected function getAuthorizationString()
+    {
+        $string = sprintf("?apiKey=%s&apiSecretKey=%s", $this->apiKey, $this->apiSecretKey);
 
-		$feed = curl_init();
-		curl_setopt_array($feed, $options);
-		
-		$json = curl_exec($feed);
-		curl_close($feed);
+        return $string;
+    }
 
-		return $json;
-	}
+    /**
+     * @param $url
+     * @return string
+     */
+    public function makeRequest($url)
+    {
+        $getFields = $this->getGetFields();
+        $postFields = $this->getPostFields();
+
+        $this->url = $url.$this->getAuthorizationString();
+
+        $options = array(
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HEADER         => false,
+            CURLOPT_URL            => $this->url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10
+        );
+
+        if (!is_null($postFields)) {
+            $postFields = http_build_query($postFields);
+            $options[CURLOPT_POSTFIELDS] = $postFields;
+        } elseif ($getFields !== '') {
+            $options[CURLOPT_URL] = $this->url . '&' . http_build_query($getFields);
+        }
+
+        $feed = curl_init();
+        curl_setopt_array($feed, $options);
+
+        $json = curl_exec($feed);
+        curl_close($feed);
+
+        return $json;
+    }
 }
