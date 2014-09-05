@@ -27,24 +27,27 @@
 // Include eE API library
 require_once "includes/eEndorsementsAPIExchange.php";
 
-// Hook for adding admin menus
+// hook for adding admin menus
 add_action('admin_menu', 'eendorsements_add_pages');
 
-// Settings link
+// settings link
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'eendorsements_add_action_links');
 
-// action function for above hook
+// register shortcode
+add_shortcode('eendorsements', 'eendorsements_handler');
+
+// admin menu for settings
 function eendorsements_add_pages() {
-    // Add a new submenu under Settings:
     add_options_page(__('eEndorsements','menu-test'), __('eEndorsements','menu-test'), 'manage_options', 'eendorsementssettings', 'eendorsements_settings_page');
 }
 
+// settings link next to the plugin
 function eendorsements_add_action_links($links) {
     $mylinks = array('<a href="' . admin_url('options-general.php?page=eendorsementssettings') . '">Settings</a>');
     return array_merge($links, $mylinks);
 }
 
-// eendorsements_settings_page() displays the page content for the Test settings submenu
+// displays the page content for modifying the settings
 function eendorsements_settings_page() {
 
     //must check that the user has the required capability 
@@ -116,4 +119,14 @@ function eendorsements_settings_page() {
 
     <?php
  
+}
+
+// collects the endorsements for this account via the eEndorsements API
+function eendorsements_handler($atts, $content = null) {
+    $a = shortcode_atts(array(
+        'limit' => '5',
+        'page'  => '1',
+    ), $atts);
+    
+    return ('here is some content from eendorsements');
 }
