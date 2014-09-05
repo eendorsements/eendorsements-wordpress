@@ -127,7 +127,7 @@ function eendorsements_handler($atts, $content = null) {
     // attribute defaults
     $a = shortcode_atts(array(
         'limit' => '10',
-        'page'  => '1',
+        'page'  => 'test',
     ), $atts);
     
     $settings = array(
@@ -139,9 +139,9 @@ function eendorsements_handler($atts, $content = null) {
 
     $username = "abcstaffing";
 
-    $ee->setGetFields(array('page' => 1));
+    $ee->setGetFields(array('page' => $a['page']));
 
-    $result = $ee->makeRequest('http://eendorsements.dev/api/endorsements/view/'.$username);
-
-    return "eEndorsements Go Here";
+    $result = $ee->makeRequest('https://eendorsements.com/api/endorsements/view/'.$username);
+    
+    return "eEndorsements Go Here.";
 }
