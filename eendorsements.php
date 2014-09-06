@@ -126,8 +126,8 @@ function eendorsements_handler($atts, $content = null) {
 
     // attribute defaults
     $a = shortcode_atts(array(
-        'limit' => '10',
-        'page'  => 'test',
+        'username' => 'null',
+        'page'  => '1',
     ), $atts);
     
     $settings = array(
@@ -137,11 +137,27 @@ function eendorsements_handler($atts, $content = null) {
 
     $ee = new eEndorsementsAPIExchange($settings);
 
-    $username = "abcstaffing";
-
     $ee->setGetFields(array('page' => $a['page']));
 
-    $result = $ee->makeRequest('https://eendorsements.com/api/endorsements/view/'.$username);
+    $result = $ee->makeRequest('https://eendorsements.com/api/endorsements/view/'.$a['username']);
     
-    return "eEndorsements Go Here.";
+    $data = json_decode($result);
+    
+    foreach ($data->endorsements as $endorsement) {
+        $output .= $endorsement->first_name . "<br />";
+        $output .= $endorsement->last_name . "<br />";
+        $output .= $endorsement->city . "<br />";
+        $output .= $endorsement->state . "<br />";
+        $output .= $endorsement->country . "<br />";
+        $output .= $endorsement->title . "<br />";
+        $output .= $endorsement->company . "<br />";
+        $output .= $endorsement->phone_number . "<br />";
+        $output .= $endorsement->comment . "<br />";
+        $output .= $endorsement->date_added . "<br />";
+        $output .= $endorsement->average_rating . "<br />";
+        $output .= "<br /><br />";
+    }
+    
+    return $output;
+    //return $result;
 }

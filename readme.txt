@@ -22,4 +22,4 @@ The eEndorsements plugin allows you to easily add your company's eEndorsements.c
 
 Once you have configured your eEndorsements plugin, you can place a shortcode within any page, post, or widget where you wish for your endorsements to be displayed:
 
-[eendorsements]
+[eendorsements username="your_username"]
